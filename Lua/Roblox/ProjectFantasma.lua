@@ -723,6 +723,10 @@ do
 		INSTANCE = function()
 			return Instance;
 		end;
+		
+		EVENTS = function()
+			return ev;
+		end;
 	};
 	
 	setmetatable(module, {
