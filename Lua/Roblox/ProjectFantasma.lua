@@ -731,7 +731,7 @@ do
 	
 	setmetatable(module, {
 		__index = function(this, i)
-			switchindex(i, index);
+			return switchindex(i, index);
 		end;
 		
 		__newindex = function(this, i, v)
