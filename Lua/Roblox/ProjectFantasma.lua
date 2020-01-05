@@ -682,7 +682,7 @@ end
 
 -- let us put on our big boy pants and start the script
 do
-	local function switchindex(this, i, t)
+	local function switchindex(i, t)
 		if (i == nil) then i = ""; end
 		return switch(tostring(i):upper(), t);
 	end
