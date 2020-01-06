@@ -6,14 +6,33 @@
 	Adapted from my original script, PNF (https://github.com/Allazeu/PublicScripts/blob/master/games/phantom%20forces/PhantomNotFunny.lua)
 	All of this is original and from scratch. Anyone can use this in any way (including forks) as long as credits are given.
 	
-	Credits: Centurian (me), Phantom Forces? (for the script I guess)
+	Changelog:
+	[+] Added more directories:
+		Weapon.Misc:
+			NameTag,
+			CaptureFrame,
+		
+		Weapon.Radar:
+			Frame,
+			Me,
+			Folder,
+		
+		Weapon.Health:
+			BloodScreen,
+			Text,
+			Bar:
+				Back,
+				Foreground,
+	[~] Organized code
+	
+	Credits: Centurian (me), Phantom Forces? (for the Framework I guess)
 --]]
 
 math.randomseed(tick()); -- random aaaa
 
 local module = { };
 
-local version = "API 1.0.0 2020.01.05";
+local version = "API 1.0.1 2020.01.06";
 local PNFENABLED = true;
 local volume = 1;
 
@@ -322,13 +341,13 @@ do
 	local gmode = wfc(endfr, "Mode")
 	
 	-- core stuff like uuhhhhhhh fuckin' uuuuhhhhh names
-	PF.Core = { };
+	PF.Core = {
+		MainGui = maingui;
+		GameGui = gamegui;
+		Misc = misc;
+		ServerVersion = SERVERVERSION;
+	};
 	do
-		PF.Core.MainGui = maingui;
-		PF.Core.GameGui = gamegui;
-		PF.Core.Misc = misc;
-		PF.Core.ServerVersion = SERVERVERSION;
-		
 		local setname = self.name;
 		
 		function PF.Core:setname(name)
@@ -365,15 +384,15 @@ do
 	
 	
 	-- chat blah blah
-	PF.Chat = { };
+	PF.Chat = {
+		Box = wfc(chatgui, "TextBox");
+		GlobalChat = globalchat;
+	};
 	ENUM.CHAT = { };
 	do
 		local speakerpattern = "(%a+)%s?:";
 		local msg = wfc(misc, "Msger");
-		local chatbox = wfc(chatgui, "TextBox");
-		
-		PF.Chat.ChatBox = chatbox;
-		PF.Chat.GlobalChat = globalchat;
+		local chatbox = PF.Chat.ChatBox;
 		
 		function PF.Chat:out(tag, message, colour)
 			local mes = msg:Clone();
@@ -411,10 +430,11 @@ do
 	end
 	
 	-- killfeed shot you are dead
-	PF.Killfeed = { };
+	PF.Killfeed = {
+		KillfeedFrame = killfeed;
+	};
 	ENUM.KILLFEED = { };
 	do
-		PF.Killfeed.KillfeedFrame = killfeed;
 		local distpattern = "%s?(%d+)%s?";
 		local rfeed = misc.Feed;
 		local hsht = misc.Headshot;
@@ -508,14 +528,14 @@ do
 	end
 	
 	-- round timing let's get it
-	PF.Round = { };
+	PF.Round = {
+		EndFrame = endfr;
+		Quote = quote;
+		ResultText = result;
+		GameMode = gmode;
+	};
 	ENUM.ROUND = { };
 	do
-		PF.Round.EndFrame = endfr;
-		PF.Round.Quote = quote;
-		PF.Round.ResultText = result;
-		PF.Round.GameMode = gmode;
-		
 		gpc(endfr, 'Visible'):Connect(function()
 			wait(.1);
 			local bool = endfr.Visible;
@@ -580,13 +600,42 @@ do
 		local healthbar = wfc(ammofr, "healthbar_back");
 		local healthbarFill = wfc(healthbar, "healthbar_fill");
 		
-		-- scope shit here
-		PF.Weapon.Scope = { };
+		-- misc shit
+		PF.Weapon.Misc = {
+			NameTag = tagfr;
+			CaptureFrame = capfr;
+		};
+		
+		-- Radar shit
+		PF.Weapon.Radar = {
+			Frame = radar;
+			Me = rme;
+			Folder = rfolder;
+		};
 		do
-			PF.Weapon.Scope.ScopeFrame = scopefr;
-			PF.Weapon.Scope.SteadyText = steady;
-			PF.Weapon.Scope.SteadyBar = steadybar;
-			
+			-- pass
+		end
+		
+		-- health shit
+		PF.Weapon.Health = {
+			BloodScreen = bloodscreen;
+			Text = healthtext;
+			Bar = {
+				Back = healthbar;
+				Foreground = healthbarFill;
+			};
+		};
+		do
+			-- pass
+		end
+		
+		-- scope shit here
+		PF.Weapon.Scope = {
+			Frame = scopefr;
+			Steady = steady;
+			SteadyBar = steadybar;
+		};
+		do
 			gpc(scopefr, 'Visible'):Connect(function()
 				if (PNFENABLED) then
 					ev:FireEvent('scoped', scopefr.Visible);
@@ -595,10 +644,11 @@ do
 		end
 		
 		-- hud crap
-		PF.Weapon.HUD = { };
+		PF.Weapon.HUD = {
+			SpottedText = spotted;
+			UseText = use;
+		};
 		do
-			PF.Weapon.HUD.SpottedText = spotted;
-			PF.Weapon.HUD.UseText = use;
 			
 			gpc(spotted, 'Visible'):Connect(function()
 				if (spotted.Text == ENUM.WEAPON.HUD.SPOT_SHOWN) then
@@ -629,7 +679,11 @@ do
 		end
 		
 		-- finally the fucking guns
-		PF.Weapon.Weapons = { };
+		PF.Weapon.Weapons = {
+			AmmoFrame = ammofr;
+			FMode = fmodetext;
+			AmmoHud = ammohud;
+		};
 		do
 			PF.Weapon.Weapons.Hitmarker = hitmarker;
 			PF.Weapon.Weapons.AmmoText = ammotext;
