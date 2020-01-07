@@ -392,7 +392,7 @@ do
 	do
 		local speakerpattern = "(%a+)%s?:";
 		local msg = wfc(misc, "Msger");
-		local chatbox = PF.Chat.ChatBox;
+		local chatbox = PF.Chat.Box;
 		
 		function PF.Chat:out(tag, message, colour)
 			local mes = msg:Clone();
