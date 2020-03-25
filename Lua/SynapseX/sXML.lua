@@ -189,7 +189,7 @@ return function()
 		local rval;
 		local s, e = pcall(function()
 			local xmlText = file.read(xmlFilename) -- read file content
-			rval = XmlParser:ParseXmlText(xmlText);
+			rval = XmlParser.parse(xmlText);
 		end);
 		
 		if (not s) then
