@@ -98,7 +98,7 @@ local function newNode(name)
 end
 
 return function()
-	local XmlParser = {};
+	local XmlParser = { };
 
 	function XmlParser:ToXmlString(value)
 		value = string.gsub(value, "&", "&amp;"); -- '&' -> "&amp;"
@@ -185,7 +185,7 @@ return function()
 		return top;
 	end
 	
-	function XmlParser:loadFile(xmlFilename, base)
+	function XmlParser:loadFile(xmlFilename)
 		local rval;
 		local s, e = pcall(function()
 			local xmlText = file.read(xmlFilename) -- read file content
@@ -193,7 +193,7 @@ return function()
 		end);
 		
 		if (not s) then
-			error("LXML: " .. e);
+			warn("LXML: " .. e);
 			return nil;
 		end
 		
