@@ -200,5 +200,5 @@ return function()
 		return rval;
 	end
 	
-	return XmlParser;
+	return XmlParser, file;
 end
