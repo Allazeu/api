@@ -100,7 +100,7 @@ end
 return function()
 	local XmlParser = { };
 
-	function XmlParser:ToXmlString(value)
+	function XmlParser.output(value)
 		value = string.gsub(value, "&", "&amp;"); -- '&' -> "&amp;"
 		value = string.gsub(value, "<", "&lt;"); -- '<' -> "&lt;"
 		value = string.gsub(value, ">", "&gt;"); -- '>' -> "&gt;"
@@ -112,7 +112,7 @@ return function()
 		return value;
 	end
 	
-	function XmlParser:FromXmlString(value)
+	function XmlParser.input(value)
 		value = string.gsub(value, "&#x([%x]+)%;",
 			function(h)
 				return string.char(tonumber(h, 16));
@@ -129,13 +129,13 @@ return function()
 		return value;
 	end
 	
-	function XmlParser:ParseArgs(node, s)
+	function XmlParser.ParseArgs(node, s)
 		string.gsub(s, "(%w+)=([\"'])(.-)%2", function(w, _, a)
-			node:addProperty(w, self:FromXmlString(a));
+			node:addProperty(w, XmlParser.input(a));
 		end);
 	end
 	
-    function XmlParser:ParseXmlText(xmlText)
+    function XmlParser.parse(xmlText)
 		local stack = {}
 		local top = newNode();
 		table.insert(stack, top)
@@ -146,17 +146,17 @@ return function()
 			if not ni then break; end
 			local text = string.sub(xmlText, i, ni - 1);
 			if not string.find(text, "^%s*$") then
-				local lVal = (top:value() or "") .. self:FromXmlString(text);
+				local lVal = (top:value() or "") .. XmlParser.input(text);
 				stack[#stack]:setValue(lVal);
 			end
 			
 			if (empty == '/') then -- empty element tag
 				local lNode = newNode(label);
-				self:ParseArgs(lNode, xarg);
+				XmlParser.ParseArgs(lNode, xarg);
 				top:addChild(lNode);
 			elseif (c == '') then -- start tag
 				local lNode = newNode(label);
-				self:ParseArgs(lNode, xarg);
+				XmlParser.ParseArgs(lNode, xarg);
 				
 				table.insert(stack, lNode);
 				top = lNode;
@@ -185,11 +185,11 @@ return function()
 		return top;
 	end
 	
-	function XmlParser:loadFile(xmlFilename)
+	function XmlParser.open(xmlFilename)
 		local rval;
 		local s, e = pcall(function()
 			local xmlText = file.read(xmlFilename) -- read file content
-			rval = self:ParseXmlText(xmlText);
+			rval = XmlParser:ParseXmlText(xmlText);
 		end);
 		
 		if (not s) then
