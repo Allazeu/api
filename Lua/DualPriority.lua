@@ -4,6 +4,7 @@
 		Usage:
 			Once the API has been required, setup the number of queues needed (queues can be added during runtime)
 			Adding queues is as easy as typing "queue.add(priority)". The priority is the level of priority to use (lower is more prioritized)
+			To initialize the queue, run in a seperate thread "queue.run()"
 		Includes:
 			Error-handling - "seq-catch" catches errors that functions in a queue raise and safely logs them
 			Fluidity - dynamically change the priorities of queues and the priorities of their functions
