@@ -8,7 +8,7 @@
 	
 	Changelog:
 	[+] Added more events
-		- each returned dictionary has a "model" element which is the model.
+		{ each returned dictionary has a "model" element which is the model.
 		tagdropped - a tag in Kill Confirmed is dropped.
 			- color - colour of the tag
 			- killer - whoever killed them
@@ -26,6 +26,14 @@
 			
 		grenadeblown - a grenade blew up
 			- friendly - whether the grenade was friendly or not
+		}
+		
+		charadded - a character is created
+			- friendly - whether the charcter is friendly
+			- char - the object
+		charsound - a sound is emitted by a character
+			- friendly - whether the character is friendly
+			- sound - the object
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
@@ -326,6 +334,9 @@ end
 -- define a fake pf api because we are neato burrito and i am too lazy to execute cRaZy HaCkS
 local PF = { };
 do
+	local lp = PlayerService.service.LocalPlayer;
+	
+	local playersfolder = wfc(workspace, "Players")
 	local ignorefolder = wfc(workspace, "Ignore");
 		local Bullets = wfc(ignorefolder, "Bullets");
 		local GunDrop = wfc(ignorefolder, "GunDrop");
@@ -387,6 +398,35 @@ do
 			if (c:IsA('Model') and c.Name == 'Dead' and PNFENABLED) then
 				ev:FireEvent('deadbody', c);
 			end
+		end);
+		
+		playersfolder.DescendantAdded:Connect(function(v)
+			local myteam = lp.Team.Name;
+			local objectTeam = "Phantoms" and v:IsDescendantOf(playersfolder.Phantoms) or "Ghosts";
+			local friendly = myteam == objectTeam;
+			
+			if (v.Parent == playersfolder.Phantoms or v.Parent == playersfolder.Ghosts) then
+				local data = {
+					friendly = friendly,
+					char = v,
+				};
+				
+				ev:FireEvent('charadded', data);
+			end
+			
+			local class = v.ClassName;
+			switch(class, {
+				Sound = function()
+					if (v.Parent.Name == "HumanoidRootPart") then
+						local data = {
+							friendly = friendly,
+							sound = v,
+						};
+						
+						ev:FireEvent('charsound', data);
+					end
+				end,
+			});
 		end);
 	end
 
