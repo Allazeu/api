@@ -7,32 +7,34 @@
 	All of this is original and from scratch. Anyone can use this in any way (including forks) as long as credits are given.
 	
 	Changelog:
-	[+] Added more directories:
-		Weapon.Misc:
-			NameTag,
-			CaptureFrame,
+	[+] Added more events
+		- each returned dictionary has a "model" element which is the model.
+		tagdropped - a tag in Kill Confirmed is dropped.
+			- color - colour of the tag
+			- killer - whoever killed them
+			- victim - whoever died
+			- location - location of the tag
+			- tag - tag object
+			- base - base object?
 		
-		Weapon.Radar:
-			Frame,
-			Me,
-			Folder,
+		gundropped - a gun is dropped
+			- name - the name of the gun
+			- spare - the amount of ammo in the gun
 		
-		Weapon.Health:
-			BloodScreen,
-			Text,
-			Bar:
-				Back,
-				Foreground,
-	[~] Organized code
+		grenadecreated - a grenade is created
+			- friendly - whether the grenade is friendly or not
+			
+		grenadeblown - a grenade blew up
+			- friendly - whether the grenade was friendly or not
 	
-	Credits: Centurian (me), Phantom Forces? (for the Framework I guess)
+	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
 
 math.randomseed(tick()); -- random aaaa
 
 local module = { };
 
-local version = "API 1.0.2 2020.09.21";
+local version = "API 1.0.2 2020.09.22";
 local PNFENABLED = true;
 local volume = 1;
 
@@ -753,11 +755,27 @@ do
 					end,
 				});
 			end);
+			
+			IgnoreMisc.DescendantRemoving:Connect(function(obj)
+				if (obj.Parent ~= IgnoreMisc) then return; end
+				
+				local name = obj.Name;
+				switch(name, {
+					Trigger = function() -- grenade
+						local data = {
+							friendly = obj.Indicator.Friendly.Visible,
+							model = obj,
+						};
+						
+						ev:FireEvent('grenadeblown', data);
+					end,
+				});
+			end);
 
 			GunDrop.ChildAdded:Connect(function(obj)
 				local type = obj.Name;
 				switch(type, {
-					Dropped = function()
+					Dropped = function() -- dropped guns
 						local data = {
 							name = obj.Gun.Value,
 							spare = obj.Spare.Value,
@@ -768,7 +786,7 @@ do
 						ev:FireEvent('gundropped', data);
 					end,
 
-					DogTag = function()
+					DogTag = function() -- tags
 						local data = {
 							color = obj.TeamColor.Value,
 							killer = obj.KillerTag.Value,
