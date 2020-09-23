@@ -564,6 +564,7 @@ do
 		
 		killfeed.ChildAdded:Connect(function(newfeed)
 			if (newfeed:IsA('TextLabel')) then
+				wait();
 				local killer = newfeed.Text;
 				local victim = newfeed.Victim.Text;
 				local dist = string.match(newfeed.GunImg.Dist.Text, distpattern);
