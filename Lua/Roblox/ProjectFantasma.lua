@@ -106,9 +106,9 @@ local PlayerService = {
 };
 
 do
-	local lp = PlayerService.service.LocalPlayer;
+	local pservice = PlayerService.service;
+	local lp = pservice.LocalPlayer;
 	do
-		local pservice = PlayerService.service;
 		local events = {
 			added = { };
 			removing = { };
@@ -135,6 +135,7 @@ do
 		
 		pservice.ChildAdded:Connect(function(obj)
 			if (obj:IsA('Player')) then
+				PlayerService.Players[obj.Name] = Player.new(obj);
 				ev:FireEvent('playeradded', PlayerService.Players[obj.Name]);
 			end
 		end);
@@ -142,6 +143,7 @@ do
 		pservice.DescendantRemoving:Connect(function(obj)
 			if (obj:IsA('Player')) then
 				ev:FireEvent('playerleft', PlayerService.Players[obj.Name]);
+				PlayerService.Players[obj.Name] = nil;
 			end
 		end);
 	end
@@ -249,6 +251,10 @@ do
 			end);
 			
 			return this;
+		end
+		
+		for _, v in next, pservice:GetPlayers() do
+			PlayerService.Players[v.Name] = Player.new(v);
 		end
 	end
 end
