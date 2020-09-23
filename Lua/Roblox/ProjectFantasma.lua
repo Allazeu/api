@@ -466,7 +466,7 @@ do
 				if (speaker) then
 					local message = mes.Msg.Text;
 					if (PNFENABLED) then
-						ev:FireEvent('playerchatted', PlayerService:Get(speaker), message, mes);
+						ev:FireEvent('playerchatted', speaker, message, mes);
 					end
 				end
 			end
@@ -564,8 +564,8 @@ do
 		
 		killfeed.ChildAdded:Connect(function(newfeed)
 			if (newfeed:IsA('TextLabel')) then
-				local killer = PlayerService:Get(newfeed.Text);
-				local victim = PlayerService:Get(newfeed.Victim.Text);
+				local killer = newfeed.Text;
+				local victim = newfeed.Victim.Text;
 				local dist = string.match(newfeed.GunImg.Dist.Text, distpattern);
 				local weapon = newfeed.GunImg.Text;
 				local head = newfeed.Victim:FindFirstChild('Headshot');
