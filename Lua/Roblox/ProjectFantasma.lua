@@ -33,12 +33,7 @@
 			- char - the object
 		charsound - a sound is emitted by a character
 			- friendly - whether the character is friendly
-			- char - the character
 			- sound - the object
-		charspotted - a character is spotted
-			- friendly - whether the character is friendly (should always be false, considering you can only spot enemies)
-			- char - the character
-			- gui - the object
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
@@ -431,11 +426,22 @@ do
 					if (v.Parent.Name == "HumanoidRootPart") then
 						local data = {
 							friendly = friendly,
+							char = v:FindFirstAncestorOfClass('Model'),
 							sound = v,
 						};
 						
 						ev:FireEvent('charsound', data);
 					end
+				end,
+				
+				BillboardGui = function()
+					local data = {
+						friendly = friendly,
+						char = v:FindFirstAncestorOfClass('Model'),
+						gui = v,
+					};
+					
+					ev:FireEvent('charspotted', data);
 				end,
 			});
 		end);
