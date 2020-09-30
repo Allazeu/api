@@ -34,6 +34,9 @@
 		charsound - a sound is emitted by a character
 			- friendly - whether the character is friendly
 			- sound - the object
+		
+		teamscorechanged - a team's score changed
+			- returns (teamname (lower case) [ghosts | phantoms], score, percent)
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
@@ -42,7 +45,7 @@ math.randomseed(tick()); -- random aaaa
 
 local module = { };
 
-local version = "API 1.0.2 2020.09.22";
+local version = "API 1.0.3 2020.09.30";
 local PNFENABLED = true;
 local volume = 1;
 
@@ -360,6 +363,22 @@ do
 	
 	local killfeed = wfc(gamegui, "Killfeed");
 	
+	-- Round HUD
+	local roundhud = wfc(gamegui, "Round");
+		local roundgamemode = wfc(roundhud, "GameMode");
+		local roundscore = wfc(roundhud, "Score");
+			local roundtime = wfc(roundscore, "Time");
+			local ghosts_round = wfc(roundscore, "Ghosts");
+				local gpercent = wfc(ghosts_round, "Percent");
+				local gteamname = wfc(ghosts_round, "TeamName");
+				local gpoint = wfc(ghosts_round, "Point");
+				local gpointshadow = wfc(ghosts_round, "PointShadow");
+			local phantoms_round = wfc(roundscore, "Phantoms");
+				local ppercent = wfc(phantoms_round, "Percent");
+				local pteamname = wfc(phantoms_round, "TeamName");
+				local ppoint = wfc(phantoms_round, "Point");
+				local ppointshadow = wfc(phantoms_round, "PointShadow");
+	
 	local endfr = wfc(maingui, "EndMatch")
 	local quote = wfc(endfr, "Quote")
 	local result = wfc(endfr, "Result")
@@ -617,6 +636,55 @@ do
 		end);
 	end
 	
+	-- funky rounds tell you what is going on DON'T DISABLE IT NERD I MADE THAT MISTAKE AND I LOST ARGGGGHHHHH
+	PF.RoundHUD = {
+		Frame = roundhud,
+		GameMode = roundgamemode,
+		
+		Score = {
+			Frame = roundscore,
+			Time = roundtime,
+			
+			Ghosts = {
+				Frame = ghosts_round,
+				Percent = gpercent,
+				TeamName = gteamname,
+				Point = gpoint,
+				PointShadow = gpointshadow,
+			},
+			
+			Phantoms = {
+				Frame = phantoms_round,
+				Percent = ppercent,
+				TeamName = pteamname,
+				Point = ppoint,
+				PointShadow = ppointshadow,
+			},
+		}
+	};
+	do
+		local function calculatePercentage(team)
+			local x1 = PF.RoundHUD.Score[team].Percent.AbsoluteSize.x;
+			local x2 = (PF.RoundHUD.Score[team].Frame.AbsoluteSize.x == 0 and 1);
+			
+			return (x1 / x2) * 100;
+		end
+		
+		gpc(PF.RoundHUD.Score.Ghosts.Point, "Text"):Connect(function()
+			local g = calculatePercentage("Ghosts");
+			local score = PF.RoundHUD.Score.Ghosts.Point.Text;
+			
+			ev:FireEvent('teamscorechanged', 'ghosts', tonumber(score), g);
+		end);
+		
+		gpc(PF.RoundHUD.Score.Phantoms.Point, "Text"):Connect(function()
+			local g = calculatePercentage("Phantoms");
+			local score = PF.RoundHUD.Score.Phantoms.Point.Text;
+			
+			ev:FireEvent('teamscorechanged', 'phantoms', tonumber(score), g);
+		end);
+	end
+	
 	-- weapon pew pew
 	PF.Weapon = { };
 	ENUM.WEAPON = { };
@@ -715,7 +783,6 @@ do
 			UseText = use;
 		};
 		do
-			
 			gpc(spotted, 'Visible'):Connect(function()
 				if (spotted.Text == ENUM.WEAPON.HUD.SPOT_SHOWN) then
 					if (PNFENABLED) then
