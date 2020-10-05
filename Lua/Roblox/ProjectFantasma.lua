@@ -37,6 +37,18 @@
 		
 		teamscorechanged - a team's score changed
 			- returns (teamname (lower case) [ghosts | phantoms], score, percent)
+		
+		spawn - your character spawns
+		
+		armsloaded - both arms have been loaded
+			- Left - left arm data
+				- Arm - Arm object
+				- SkinTone - SkinTone object
+				- Model - actual object
+			- Right - right arm data
+				- Arm - Arm object
+				- SkinTone - SkinTone object
+				- Model - actual object
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
@@ -45,7 +57,7 @@ math.randomseed(tick()); -- random aaaa
 
 local module = { };
 
-local version = "API 1.0.3 2020.09.30";
+local version = "API 1.0.4 2020.10.05";
 local PNFENABLED = true;
 local volume = 1;
 
@@ -425,6 +437,13 @@ do
 			end
 		end);
 		
+		ev:AddEvent('charadded', function(data)
+			if (data.friendly and data.char == lp.Character) then
+				wait();
+				ev:FireEvent('spawn', data.char);
+			end
+		end);
+		
 		playersfolder.DescendantAdded:Connect(function(v)
 			local myteam = lp.Team.Name;
 			local objectTeam = (v:IsDescendantOf(playersfolder.Phantoms) and "Phantoms") or "Ghosts";
@@ -466,6 +485,36 @@ do
 		end);
 	end
 	
+	PF.FirstPerson = {
+		Arms = {
+			Left = { },
+			Right = { },
+		},
+	};
+	do
+		local function armdata(arm)
+			local data = {
+				SkinTone = wfc(arm, "SkinTone"),
+				Arm = wfc(arm, "Arm"),
+				
+				Model = arm,
+			};
+			
+			return data;
+		end
+		
+		ev:AddEvent('spawn', function(char)
+			local larm = wfc(char, "Left Arm");
+				local larmdata = armdata(larm);
+			local rarm = wfc(char, "Right Arm");
+				local rarmdata = armdata(rarm);
+			
+			PF.FirstPerson.Arms.Left = larmdata;
+			PF.FirstPerson.Arms.Right = rarmdata;
+			
+			ev:FireEvent('armsloaded', PF.FirstPerson.Arms);
+		end);
+	end
 	
 	-- chat blah blah
 	PF.Chat = {
