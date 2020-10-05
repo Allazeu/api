@@ -437,11 +437,10 @@ do
 			end
 		end);
 		
-		ev:AddEvent('charadded', function(data)
-			if (data.friendly and data.char == lp.Character) then
-				wait();
-				ev:FireEvent('spawn', data.char);
-			end
+		--ev:AddEvent('charadded', function(data)
+		lp.CharacterAdded:Connect(function(char)
+			wait();
+			ev:FireEvent('spawn', char);
 		end);
 		
 		playersfolder.DescendantAdded:Connect(function(v)
