@@ -44,16 +44,20 @@
 			- Left - left arm data
 				- Arm - Arm object
 				- SkinTone - SkinTone object
+				- Sleeves - sleeves of the object
+					- obj - the sleeve MeshPart
+					- (void) change - function that changes the texture parts of the sleeves
 				- Model - actual object
 			- Right - right arm data
 				- Arm - Arm object
 				- SkinTone - SkinTone object
 				- Model - actual object
+				- Sleeves - sleeves of the object
+					- obj - the sleeve MeshPart
+					- (void) change - function that changes the texture parts of the sleeves
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
-
-math.randomseed(tick()); -- random aaaa
 
 local module = { };
 
@@ -491,10 +495,38 @@ do
 		},
 	};
 	do
+		local function changeTexture(obj, id, tileu, tilev, transparency, color)
+			for _, v in next, obj:GetChildren() do
+				if (v:IsA('Texture')) then
+					v.Texture = id;
+					v.StudsPerTileU = tileu or 1;
+					v.StudsPerTileV = tilev or 1;
+					v.Transparency = transparency or 0;
+					v.Color3 = color;
+				end
+			end
+		end
+		
 		local function armdata(arm)
+			local sleeves = {
+				obj = nil,
+			};
+			
+			function sleeves:change(...)
+				changeTexture(sleeves.obj, ...);
+			end
+			
+			for _, v in next, arm:GetChildren() do
+				if (v:IsA('MeshPart') and v:FindFirstChildOfClass('Texture')) then
+					sleeves.obj = v;
+					break;
+				end
+			end
+			
 			local data = {
 				SkinTone = wfc(arm, "SkinTone"),
 				Arm = wfc(arm, "Arm"),
+				Sleeves = sleeves,
 				
 				Model = arm,
 			};
