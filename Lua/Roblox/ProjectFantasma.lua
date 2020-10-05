@@ -502,16 +502,35 @@ do
 			return data;
 		end
 		
-		ev:AddEvent('spawn', function(char)
-			local larm = wfc(char, "Left Arm");
-				local larmdata = armdata(larm);
-			local rarm = wfc(char, "Right Arm");
-				local rarmdata = armdata(rarm);
+		cam.ChildAdded:Connect(function(obj)
+			local wasarm = false;
+			if (obj.Name == "Left Arm") then
+				local data = armdata(obj);
+				PF.FirstPerson.Arms.Left = data;
+				
+				wasarm = true;
+			elseif (obj.Name == "Right Arm") then
+				local data = armdata(obj);
+				PF.FirstPerson.Arms.Right = data;
+				
+				wasarm = true;
+			else
+				ev:FireEvent('weaponswitch', obj); -- more detail on this later
+			end
 			
-			PF.FirstPerson.Arms.Left = larmdata;
-			PF.FirstPerson.Arms.Right = rarmdata;
-			
-			ev:FireEvent('armsloaded', PF.FirstPerson.Arms);
+			if (wasarm and ffc(cam, "Left Arm") and ffc(cam, "Right Arm")) then
+				ev:FireEvent('armsloaded', PF.FirstPerson.Arms);
+			end
+		end);
+		
+		cam.DescendantRemoving:Connect(function(obj)
+			if (obj.Parent == cam) then
+				if (obj.Name == "Left Arm") then
+					PF.FirstPerson.Arms.Left = { };
+				elseif (obj.Name == "Right Arm") then
+					PF.FirstPerson.Arms.Right = { };
+				end
+			end
 		end);
 	end
 	
