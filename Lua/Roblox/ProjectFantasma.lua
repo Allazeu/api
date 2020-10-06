@@ -47,6 +47,9 @@
 				- Sleeves - sleeves of the object
 					- obj - the sleeve MeshPart
 					- (void) change - function that changes the texture parts of the sleeves
+				- Gloves - gloves
+					- parts - the actual glove parts
+					- set - set a specific property of each glove part
 				- Model - actual object
 			- Right - right arm data
 				- Arm - Arm object
@@ -55,6 +58,9 @@
 				- Sleeves - sleeves of the object
 					- obj - the sleeve MeshPart
 					- (void) change - function that changes the texture parts of the sleeves
+				- Gloves - gloves
+					- parts - the actual glove parts
+					- set - set a specific property of each glove part
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
@@ -516,10 +522,22 @@ do
 				changeTexture(sleeves.obj, ...);
 			end
 			
+			local gloves = {
+				parts = { },
+			};
+			
+			function gloves:set(property, value)
+				for _, v in next, gloves.parts do
+					v[property] = value;
+				end
+			end
+			
 			for _, v in next, arm:GetChildren() do
 				if (v:IsA('MeshPart') and v:FindFirstChildOfClass('Texture')) then
 					sleeves.obj = v;
 					break;
+				elseif (v:IsA('Part') and v.BrickColor == BrickColor.new("Really black")) then
+					table.insert(gloves.parts, v);
 				end
 			end
 			
@@ -527,6 +545,7 @@ do
 				SkinTone = wfc(arm, "SkinTone"),
 				Arm = wfc(arm, "Arm"),
 				Sleeves = sleeves,
+				Gloves = gloves,
 				
 				Model = arm,
 			};
