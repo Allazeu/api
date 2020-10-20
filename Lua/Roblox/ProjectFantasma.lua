@@ -7,67 +7,14 @@
 	All of this is original and from scratch. Anyone can use this in any way (including forks) as long as credits are given.
 	
 	Changelog:
-	[+] Added more events
-		{ each returned dictionary has a "model" element which is the model.
-		tagdropped - a tag in Kill Confirmed is dropped.
-			- color - colour of the tag
-			- killer - whoever killed them
-			- victim - whoever died
-			- location - location of the tag
-			- tag - tag object
-			- base - base object?
-		
-		gundropped - a gun is dropped
-			- name - the name of the gun
-			- spare - the amount of ammo in the gun
-		
-		grenadecreated - a grenade is created
-			- friendly - whether the grenade is friendly or not
-			
-		grenadeblown - a grenade blew up
-			- friendly - whether the grenade was friendly or not
-		}
-		
-		charadded - a character is created
-			- friendly - whether the charcter is friendly
-			- char - the object
-		charsound - a sound is emitted by a character
-			- friendly - whether the character is friendly
-			- sound - the object
-		
-		teamscorechanged - a team's score changed
-			- returns (teamname (lower case) [ghosts | phantoms], score, percent)
-		
-		spawn - your character spawns
-		
-		armsloaded - both arms have been loaded
-			- Left - left arm data
-				- Arm - Arm object
-				- SkinTone - SkinTone object
-				- Sleeves - sleeves of the object
-					- obj - the sleeve MeshPart
-					- (void) change - function that changes the texture parts of the sleeves
-				- Gloves - gloves
-					- parts - the actual glove parts
-					- set - set a specific property of each glove part
-				- Model - actual object
-			- Right - right arm data
-				- Arm - Arm object
-				- SkinTone - SkinTone object
-				- Model - actual object
-				- Sleeves - sleeves of the object
-					- obj - the sleeve MeshPart
-					- (void) change - function that changes the texture parts of the sleeves
-				- Gloves - gloves
-					- parts - the actual glove parts
-					- set - set a specific property of each glove part
+	[~] Fixed the updated arms in the current version of Phantom Forces (Halloween 2020)
 	
 	Credits: Centurian (me), Phantom Forces? (for the Framework, and creating the game I guess)
 --]]
 
 local module = { };
 
-local version = "API 1.0.4 2020.10.05";
+local version = "API 1.0.5 2020.10.20";
 local PNFENABLED = true;
 local volume = 1;
 
@@ -501,26 +448,8 @@ do
 		},
 	};
 	do
-		local function changeTexture(obj, id, tileu, tilev, transparency, color)
-			for _, v in next, obj:GetChildren() do
-				if (v:IsA('Texture')) then
-					v.Texture = id;
-					v.StudsPerTileU = tileu or 1;
-					v.StudsPerTileV = tilev or 1;
-					v.Transparency = transparency or 0;
-					v.Color3 = color;
-				end
-			end
-		end
-		
 		local function armdata(arm)
-			local sleeves = {
-				obj = nil,
-			};
-			
-			function sleeves:change(...)
-				changeTexture(sleeves.obj, ...);
-			end
+			local sleeves;
 			
 			local gloves = {
 				parts = { },
@@ -533,12 +462,15 @@ do
 			end
 			
 			for _, v in next, arm:GetChildren() do
-				if (v:IsA('MeshPart') and v:FindFirstChildOfClass('Texture')) then
-					sleeves.obj = v;
-					break;
-				elseif (v:IsA('Part') and v.BrickColor == BrickColor.new("Really black")) then
-					table.insert(gloves.parts, v);
+				if (v.BrickColor == BrickColor.new("Really black")) then
+					if (v:IsA('MeshPart') and v.TextureID ~= '') then
+						sleeves = v;
+						break;
+					elseif (v:IsA('Part')) then
+						table.insert(gloves.parts, v);
+					end
 				end
+				
 			end
 			
 			local data = {
